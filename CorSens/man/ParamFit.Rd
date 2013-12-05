@@ -1,0 +1,32 @@
+\name{ParamFit}
+\alias{ParamFit}
+\title{Extract distribution parameter fits to empirical PDFs}
+\usage{
+  ParamFit(data, distributions)
+}
+\arguments{
+  \item{data}{A data matrix with columns taken as arbitrary
+  marginal distributions to be fit with parameters specific
+  to distributions specified by the \code{distributions}
+  vector.}
+
+  \item{distributions}{A vector of distribution names from
+  the list c("unif", "norm", "lnorm", "gamma"), the length
+  of ncol(data).}
+}
+\value{
+  list A list of arbitrary distribution fit parameters
+}
+\description{
+  The function extracts the Maximum Likelihood (ML)
+  parameter fits to empirical, marginal data distributions
+  from the normal, lognormal, and gamma distributions using
+  the \code{fitdistr} function from the \code{MASS}
+  package, and the simple minimum and maximum for data
+  assigned a uniform distribution.
+}
+\details{
+  The function is used internal to the \code{K12} function
+  or may be used independently.
+}
+

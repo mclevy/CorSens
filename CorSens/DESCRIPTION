@@ -1,0 +1,26 @@
+Package: CorSens
+Title: Monte Carlo Estimation of Sensitivity Indices for Models with Dependent
+    Variables (Kucherenko et al. 2012)
+Description: Variance decomposition based function for the calculation of
+    sensitivity indices for models with dependent variables that uses Monte
+    Carlo estimation methods and a Gasussian copula based approach for sampling
+    from arbitrary multivariate distributions.
+Version: 0.1
+Authors@R: 'Morgan Levy <mclevy@berkeley.edu> [aut, cre]'
+Maintainer: Morgan Levy <mclevy@berkeley.edu>
+Depends:
+    R (>= 3.0.2)
+Imports:
+    MASS,
+    stats,
+    matrixcalc
+URL: https://github.com/mclevy/CorSens.git
+License: # getOptions('devtools.desc.license')
+LazyData: true
+Collate:
+    'CorTransform.R'
+    'Fnorm.R'
+    'Ginv.R'
+    'K12.R'
+    'L86.R'
+    'ParamFit.R'

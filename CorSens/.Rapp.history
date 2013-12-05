@@ -1,0 +1,6 @@
+rm(list= ls());#
+master <- "/Users/mcl/Dropbox/Year3/STATS_MA/code/final/CorSens"#
+setwd(master)
+install.packages("/Users/mcl/Dropbox/Year3/STATS_MA/code/final/CorSens_0.1.tar.gz")
+library(CorSens)
+?K12
