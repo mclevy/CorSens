@@ -7,7 +7,7 @@
 #' @param data A data matrix with columns taken as arbitrary marginal distributions, from which (Pearson) correlation is calculated and mapped to MVN correlation according to each marginal distribution form (specified by \code{distributions}) using \code{L86}.
 #' @param distributions A list of distribution names from the list c("unif", "norm", "lnorm", "gamma"), the length of \code{ncol(data)} or \code{k} (in the case of a simulation).
 #' @param k \code{NULL} (default) The number of marginal distributions, specified when no data is given, and when \code{sigma} and \code{mu} are provided (such as in a simulation).
-#' @param sigma \code{NULL} (default) The marginal distributions' correlation matrix, specified when no data is given, and when \code{k} and \code{mu} are provided (such as in a simulation).
+#' @param sigma \code{NULL} (default) The marginal distributions' covariance matrix, specified when no data is given, and when \code{k} and \code{mu} are provided (such as in a simulation).
 #' @param mu \code{NULL} (default) The marginal distributions' mean vector (of length \code{k}), specified when no data is given, and when \code{k} and \code{sigma} are provided (such as in a simulation).
 #' 
 #' @references Liu, Pei-Ling, and Armen Der Kiureghian. "Multivariate Distribution Models with Prescribed Marginals and Covariances." Probabilistic Engineering Mechanics 1, no. 2 (June 1986): 105-112. doi:10.1016/0266-8920(86)90033-0.
@@ -19,10 +19,13 @@
 #' @import stats
 #' 
 #' 
-CorTransform <- function(data, distributions, k=NULL, sigma = NULL, mu=NULL) { 
+CorTransform <- function(data = NULL, distributions, k=NULL, sigma = NULL, mu=NULL) { 
 
   # mu is (optional) desired mean vector
   # k is (optional) number of variables when no data is provided
+  # sigma needs to be covariance, not correlation matrix
+  
+  # outputs correlation (not covariance) matrix
   
   if (is.null(k)){
     n <- ncol(data)
@@ -34,23 +37,28 @@ CorTransform <- function(data, distributions, k=NULL, sigma = NULL, mu=NULL) {
   
   # initialize, cor and cov matrix for transformed vars
   Psi_cor <- matrix(NA, ncol=n, nrow=n)
-  diag(Psi_cor) <-1
+  diag(Psi_cor) <-diag(sigma)
   
   for (i in 1:ncol(combos)){
+    
     xj <- combos[1,i] # 1st pair variable
     xi <- combos[2,i] # 2nd pair variable
     
-    if (is.null(mu) == F){
-      varj <- mu[xj] # hist(varj)
-      vari <- mu[xi]  # hist(vari)
-    }else if (is.null(data) == F){
+    # only used for group 2 distributions (lognormal, gamma)
+
+    if (is.null(data) == F){ # data entered
+      
       varj <- data[ ,xj] # hist(varj)
       vari <- data[ ,xi] # hist(vari)
+      delta_j <- sd(varj, na.rm = T)/mean(varj, na.rm = T) # sigma/mu for distribution j (in Group 2)
+      delta_i <- sd(vari, na.rm = T)/mean(vari, na.rm = T) # sigma/mu for distribution i (in Group 2)
+      
+    } else if (is.null(data) == T){ # no data entered
+      
+      delta_j <- sqrt(sigma[xj,xj])/mu[xj] # sigma/mu for distribution j (in Group 2)
+      delta_i <- sqrt(sigma[xi,xi])/mu[xi] # sigma/mu for distribution i (in Group 2)
+   
     }
-  
-    # only used for group 2 distributions (lognormal, gamma)
-    delta_j <- sd(varj, na.rm = T)/mean(varj, , na.rm = T) # sigma/mu for distribution j (in Group 2)
-    delta_i <- sd(vari, na.rm = T)/mean(vari, , na.rm = T) # sigma/mu for distribution i (in Group 2)
     
     if (is.null(sigma) == T){
       rho_ij <- cor(varj,vari,use="pairwise.complete.obs")
@@ -64,5 +72,7 @@ CorTransform <- function(data, distributions, k=NULL, sigma = NULL, mu=NULL) {
     Psi_cor[xj,xi] <- Psi_cor[xi,xj] <- rho_ij * Fx
     
   }
+  
+  Psi_cor <- cov2cor(Psi_cor)
   return(Psi_cor) # transformed correlation matrix for use with (standard) normal transformed variables
 }

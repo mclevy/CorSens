@@ -2,8 +2,8 @@
 \alias{CorTransform}
 \title{Wrapper for L86 (MVN Correlation Mapping)}
 \usage{
-  CorTransform(data, distributions, k = NULL, sigma = NULL,
-    mu = NULL)
+  CorTransform(data = NULL, distributions, k = NULL,
+    sigma = NULL, mu = NULL)
 }
 \arguments{
   \item{data}{A data matrix with columns taken as arbitrary
@@ -23,7 +23,7 @@
   simulation).}
 
   \item{sigma}{\code{NULL} (default) The marginal
-  distributions' correlation matrix, specified when no data
+  distributions' covariance matrix, specified when no data
   is given, and when \code{k} and \code{mu} are provided
   (such as in a simulation).}
 

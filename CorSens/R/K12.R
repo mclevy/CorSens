@@ -55,15 +55,6 @@ K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigm
   if(is.null(data) == T && is.null(k)) stop("If no data is provided, must specify k = the number of data variables")
   if(is.null(model)) stop("Model function is missing")
   
-  if (is.null(sigma) == F){
-    # convert to correlation; if already cor, doesn't matter
-    sigma <- cov2cor(sigma)
-  } else if (is.null(sigma) == T){
-    sigma <- cor(data,use="pairwise.complete.obs")
-  }
-  
-  if(is.positive.semi.definite(round(sigma,2)) == F) stop("Correlation matrix is not positive semi-definite.")
-  
   if (is.null(k) == T){
     k <- dim(data)[2]
     test <- F
@@ -86,6 +77,9 @@ K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigm
   
   if (is.null(data) == T){  # no data matrix
     if(k != length(distributions)) stop("Number of variables (k) does not match the length of the list of distributions") 
+    if(k != length(mu)) stop("Number of variables (k) does not match the length of the mean vector") 
+    if(k != length(diag(sigma)) ) stop("Number of variables (k) does not match the rows and columns of sigma") 
+    if(k != length(parameters) ) stop("Number of variables (k) does not match the length of the list of distribution parameters") 
   } else if (is.null(data) == F){
     if(ncol(data) != length(distributions)) stop("Number of variables (data columns) does not match the length of the list of distributions") 
   }
@@ -99,13 +93,24 @@ K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigm
   }
   
   ## Specify transformed sigma; from data and distributions, or entered manually
+  
+  if (is.null(sigma) == F){
+    sigma <- sigma
+  } else if (is.null(sigma)){
+    sigma <- cov(data,use="pairwise.complete.obs")
+  }
+  
+  if(all(rep(1,k) == diag(sigma))) warning("Check that sigma is a covariance (not correlation) matrix; covariance matrix must be supplied")
+
   if (is.null(sigma) == T){
     sigma <- CorTransform(data, k=k, distributions)
   } else if (is.null(data) == F && is.null(sigma) == F){
     sigma <- CorTransform(data=data, k=k, distributions, sigma)
-  } else if (is.null(data) == T && is.null(sigma) == F && is.null(mu) == F){
+  } else if (all(diag(k) == sigma) == F && is.null(data) == T && is.null(sigma) == F && is.null(mu) == F){
     sigma <- CorTransform(distributions=distributions,k=k, sigma=sigma, mu=mu)
-  }
+  } # all(diag(k) == sigma): leave sigma as is if == I
+  
+  if(is.positive.semi.definite(round(sigma,2)) == F) stop("Correlation matrix is not positive semi-definite.")
   
   #########################################################################
   ### Set up for: Construct sets (y,z), (y, z_bp) and complimentary set (y_bp, z)
@@ -121,6 +126,8 @@ K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigm
   }else{
     mu_x <- mu
   }
+  
+  # print(sigma)
   
   A <- t(chol(sigma)) # check: A %*% t(A) = sigma ; sigma is just correlated vars
   x <- t( apply(A %*% t(xt), MARGIN=2, FUN=function(x){x + mu_x}))
@@ -247,11 +254,11 @@ K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigm
   f.y.z_bp <- matrix(mod(Y.Z_bp), ncol=k) # output matrix (N x k) for each k subset
   f.y_bp.z <- matrix(mod(Y_bp.Z), ncol=k) # output matrix (N x k) for each k subset
   
-  f0 <- sum(f.yz)/N
-  D <- sum(f.yz^2)/N - f0^2
+  f0 <- sum(f.yz, na.rm = TRUE)/N
+  D <- sum(f.yz^2, na.rm = TRUE)/N - f0^2
   
-  Sy <- apply(f.y.z_bp, MARGIN=2, FUN=function(x){(sum(f.yz * x)/N - f0^2)/D})
-  STy <- apply(f.y_bp.z, MARGIN=2, FUN=function(x){(sum((f.yz - x)^2)/N)/(2*D)})
+  Sy <- apply(f.y.z_bp, MARGIN=2, FUN=function(x){(sum(f.yz * x, na.rm = TRUE)/N - f0^2)/D})
+  STy <- apply(f.y_bp.z, MARGIN=2, FUN=function(x){(sum((f.yz - x)^2, na.rm = TRUE)/N)/(2*D)})
   
   # results table with thresholds
   kk <- list(Sy, STy)
