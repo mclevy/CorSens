@@ -29,9 +29,11 @@
   simulation).}
 
   \item{sigma}{\code{NULL} (default) The marginal
-  distributions' correlation matrix, specified when no data
+  distributions' covariance matrix, specified when no data
   is given, and when \code{k} and \code{mu} are provided
-  (such as in a simulation).}
+  (such as in a simulation). A covariance matrix, instead
+  of a correlation matrix, is required for arbitrary-MVN
+  distribution mapping (see \code{L86} function).}
 
   \item{mu}{\code{NULL} (default) The marginal
   distributions' mean vector (of length \code{k}),

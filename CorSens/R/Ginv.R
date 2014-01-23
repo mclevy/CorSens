@@ -20,7 +20,12 @@ Ginv <- function(data, distributions, params){
   
   for (i in 1:ncol(G)){
     distf <- get(distfunc[i]) # extract 
-    G[ ,i] <-  distf(data[ ,i], params[[i]][1], params[[i]][2]) # hist(G[ ,i])
+    
+    if (distributions[i] == "unif"){
+      G[ ,i] <- data[ ,i] # don't transform, already uniform
+    } else {
+      G[ ,i] <- distf(data[ ,i], params[[i]][1], params[[i]][2]) # hist(G[ ,i])
+    }
   }
   
   return(G)

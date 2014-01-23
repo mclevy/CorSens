@@ -2,7 +2,7 @@
 #'
 #' @description This function calculates arbitrary-to-MVN distribution correlation coefficient mappings, and is used internal to the \code{CorTransform} function to generates a MVN correlation matrix from the correlation of marginal arbitrary distributions (data matrix columns) from \code{data}, or a specified correlation matrix \code{sigma}.
 #' 
-#' @details This function calculates a MVN correlation matrix (adjusted arbitrary distributions' correlation coefficients), based on either data correlation from \code{data}, or specified parameters \code{k},\code{sigma}, and \code{mu}, and well as \code{distributions}.The function is used internal to the \code{K12} function or may be used independently.
+#' @details This function calculates a MVN correlation matrix (adjusted arbitrary distributions' correlation coefficients), based on either data covariance from \code{data}, or specified parameters \code{k},\code{sigma}, and \code{mu}, and well as \code{distributions}.The function is used internal to the \code{K12} function or may be used independently.
 #'
 #' @param delta_j A parameter obtained from \code{data} or supplied through \code{sigma} and \code{mu} (supplied through \code{CorTransform}) equal to the standard deviation/mean for marginal distribution 'j' (one of any supplied/specified marginal distributions).
 #' @param delta_i A parameter obtained from \code{data} or supplied through \code{sigma} and \code{mu} (supplied through \code{CorTransform}) equal to the standard deviation/mean for marginal distribution 'i' (one of any supplied/specified marginal distributions).

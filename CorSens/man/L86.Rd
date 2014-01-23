@@ -41,7 +41,7 @@
 \details{
   This function calculates a MVN correlation matrix
   (adjusted arbitrary distributions' correlation
-  coefficients), based on either data correlation from
+  coefficients), based on either data covariance from
   \code{data}, or specified parameters
   \code{k},\code{sigma}, and \code{mu}, and well as
   \code{distributions}.The function is used internal to the
