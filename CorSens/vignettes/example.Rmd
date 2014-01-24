@@ -1,0 +1,343 @@
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Vignette Example}
+%\VignetteDepends{sensitivity}
+-->
+
+
+# Vignette (2): Example for ```CorSens```
+
+This vignette provides an example designed specifically for the ```CorSens``` package. A simple but realistic example is provided in the form of four input variables with different distributions (gamma, normal, lognormal, and uniform), and tests of a toy model's sensitivity to simulated input data with varying correlation between select variables.
+
+Individual (parameter) and total (parameter interaction) sensitivity indices (SI) are computed, and are the output to the ```K12``` function of the ```CorSens``` package. In all examples provided, the SI values are computed using simple random sampling and a sample size of $10^5$.
+
+This example also provides comparison of ```CorSens``` model results with those from the ```sensitivity``` package by Pujol et al., which calculates individual and total SI, not accounting for input variable correlation.
+
+## Set Up
+
+The simulated data are $x = (x_1, x_2, x_3, x_4)$ with
+
+$$
+ \begin{align*}
+ x_1 &\sim \Gamma(\alpha=1, \beta=0.5) \sim Exp(\lambda=0.5) \\
+ x_2 &\sim N(\mu_2=0, \sigma_2=1)\\
+ x_3 &\sim lnN(\mu_3=0, \sigma_3=1)\\
+ x_4 &\sim U(a=0, b=1),
+ \end{align*}
+$$
+ 
+correlation matrix
+ 
+$$ \left( \begin{array}{cccc}
+1 & \rho_{12} & 0 & 0 \\
+\rho_{21}  & 1 & 0 & 0 \\
+0 &  0 & 1 & 0 \\
+0 &  0 & 0 & 1  \end{array} \right) $$
+
+and the model $f(x_1,x_2,x_3, x_4) = x_1 x_2 + (x_1 x_4)^2 + x_1 + x_2 + x_3+ x_4$.
+
+The model is chosen so that a mix of interactions (or lack thereof), and linear and nonlinear relationships between variables, are represented. Sensitivity indices were calculated for this model and simulated data using both a traditional Sobol' (Saltelli 2002) method using the ```sobol2002``` function from the ```sensitivity``` package, and also with the Gaussian copula based Kucherenko et al. (2012) method using the ```K12``` function from the ```CorSens``` package. 
+
+This comparison was made in three steps: 
+
+1.  Calculate individual and total SI according to the 2002 and 2012 methods with no correlation between selected variables ($\rho_{12}=0$);
+2.  Calculate individual and total SI according to the 2002 and 2012 methods with positive correlation between variables ($\rho_{12}=0.8$); 
+3.  Calculate individual and total SI according to the 2012 method with a range of correlation between selected variables ($\rho_{12}$ between $-0.9$ and $0.9$).
+
+## 1. No Correlation
+
+Generation of simulated model input data is done in this example by generating four column vectors of arbitrarily distributed data, with specified correlation, which in this initial case is none.
+
+```{r, echo=TRUE}
+# dimensions of data
+N <- 10^5
+k <- 4
+
+## Simulate correlated data:
+
+# Generate normals
+u <- matrix(runif((k) * N), nrow = N) # uniforms
+xt <- qnorm(u) # normal inverse transform
+mu_x <- rep(0,4) # mean vector
+
+# Correlation matrix (zero correlation)
+rho <- 0.0
+sigma <- matrix(rep(NA, k^2), nrow=k)
+std <- 1
+diag(sigma) <- std^2 ; sigma[lower.tri(sigma)] <- sigma[upper.tri(sigma)] <- rho
+
+# Generate uniform, correlated variables with cholesky decomposition
+A <- t(chol(sigma))
+x <- t( apply(A %*% t(xt), MARGIN=2, FUN=function(x){x + mu_x}))
+U <- apply(x,2,pnorm)
+
+# simulate data according to selected arbitrary distributions
+x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+x2 <- qnorm(U[,2]) # normal
+x3 <-  qlnorm(U[,3]) # lognormal
+x4 <- qunif(U[,4]) # uniform
+
+# matrix of simulated, correlated data (4 variables)
+data <- cbind(x1,x2,x3,x4)
+```
+
+Simulated data look like:
+
+```{r, echo=FALSE, fig.width=7, fig.height=5}
+par(mfrow=c(2,2))
+
+for (i in 1:ncol(data)){
+  hist(data[ ,i], freq=F, main=NULL, xlab=colnames(data)[i])
+  lines(density(data[ ,i]), col=2, lwd = 2)
+}
+```
+
+And have, in the case of no correlation, a sample covariance matrix of:
+
+```{r, echo=FALSE}
+round(cov(data),1)
+```
+
+The variable distribution assignments and model function are made as follows:
+
+```{r, echo=TRUE}
+# Assign distribution manually
+distributions <- c("gamma", "norm","lnorm", "unif")
+
+# Toy model
+toy <- function(data){
+  Y <- (data[ ,1]*data[ ,2]) + (data[ ,1]*data[ ,4])^2 + data[ ,1] + data[ ,2] + data[ ,3] + data[ ,4]
+  return(Y)
+}
+```
+
+**For models input to the ```K12``` function of ```CorSens```, the model function must take a matrix or data frame, for which all column vectors are input variables, and output a single vector.**
+
+### The Sobol' (Saltelli, 2002) method
+
+The traditional (non-correlation accounting) Sobol' method is employed as follows, providing the individual and total SI values printed below: 
+
+```{r, echo=TRUE}
+### Sobol' 2002 method
+library(sensitivity, quietly=T)
+
+# this function requires making two separate samples (a,b)
+n_samps <- N
+a <- data[sample(nrow(data),size=n_samps,replace=TRUE), ]
+b <- data[sample(nrow(data),size=n_samps,replace=TRUE), ]
+s1_ex <- sobol2002(model = toy, X1 = a, X2 = b)
+
+# Individual indices
+s1_ex$S
+# Total indices
+s1_ex$T
+```
+
+### The Kucherenko et. al (2012) method
+
+The correlation accounting SA method pacakged in ```CorSens``` is employed as follows, providing the individual and total SI values, and sensitivity ranking information as printed below:
+
+```{r, echo=TRUE}
+### Kucherenko 2012 method
+library(CorSens)
+k1_ex <- K12(N=N, data = data, distributions=distributions, model = toy)
+
+# Individual indices
+k1_ex$SY
+# Total indices
+k1_ex$STy
+# sensitivity according to (arbitrary) thresholds of significance (defaults)
+k1_ex$results
+```
+
+In the final table printed above, according to a range of arbitrary thresholds, the SA finds that the model is sensitive to the input variables at the specified levels (output is from the 2012 method, but is equivalent to the 2002 method in the uncorrelated case).
+
+In the table above, subscript $i$ refers to the individual SI and $T$ to the total SI; ```Rank_i``` and ```Rank_T``` are the rank order of that variable in terms of the variance in model output attributable to that individual variable, and that variable's interactions with all other variables, respectively; ```0.01_i, 0.05_i ,0.10_i``` are the 1%, 5%, and 10% sensitivity thresholds - the model is sensitive to variables with an "```X```" at the given threshold, but not to variables with a "$\cdot$".
+
+Here, both SA's correctly identify that the model is sensitive to interaction effects between $x_1,x_2$ and $x_4$ (variables for which there are interaction terms in the model), while being individually most sensitive to $x_1$.
+
+*In the case where a pure simulation is desired (no data), the Kucherenko et. al (2012) method could also be carried out by not providing ```data```, but instead specifying ```sigma,mu,k,parameters``` (see ```?K12``` for argument input details). In this example, this would be equivalent to the code above because the 'data' are simulated, and the sample size large.*
+
+### Comparing the Two Methods, No Correlation
+
+Below is a plot of the values of individual and total SI from each method, showing that when there is no correlation, results are equivalent.
+
+```{r, echo=FALSE}
+### Plot distributions function
+
+ex_plot <- function(k,s){
+  matplot(cbind(k$SY,s$S[1]), xaxt = "n", ylab="Index Value", pch=c(21,22), main="Individual Indices", ylim=c(0,1))
+  axis(1, 1:4, c("x1", "x2", "x3", "x4"))
+  abline(v = 1:4, col = "lightgray", lty=3)
+  legend("topright", c("Kucherenko", "Sobol'"), pch=c(21,22), col=1:2, cex=1.2)
+  
+  matplot(cbind(k$STy,s$T[1]), xaxt = "n", ylab="Index Value", pch=c(21,22), main="Total Indices", ylim=c(0,1))
+  axis(1, 1:4, c("x1", "x2", "x3", "x4"))
+  abline(v = 1:4, col = "lightgray", lty=3)
+  legend("topright", c("Kucherenko", "Sobol'"), pch=c(21,22), col=1:2, cex=1.2)
+}
+```
+
+```{r, echo=FALSE, fig.width=7, fig.height=4}
+par(mfrow=c(1,2))
+ex_plot(k1_ex, s1_ex)
+```
+
+As expected, the method accounting for correlation provides the same results as that not accounting for correlation (with small differences due to use of different sample sets) when there is no correlation. 
+
+## 2. Correlation
+
+Next, correlation between selected variables is imposed. 
+
+```{r, echo=TRUE}
+# Correlation matrix (WITH correlation)
+rho <- 0.0
+sigma <- matrix(rep(NA, k^2), nrow=k)
+std <- 1
+diag(sigma) <- std^2 ; sigma[lower.tri(sigma)] <- rho ; 
+sigma[upper.tri(sigma)] <- rho
+
+rhos1 <- 0.8
+sigma[2,1] <- sigma[1,2] <- rhos1
+
+A <- t(chol(sigma))
+x <- t( apply(A %*% t(xt), MARGIN=2, FUN=function(x){x + mu_x}))
+U <- apply(x,2,pnorm) # Uniform, correlated variables
+
+x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+x2 <- qnorm(U[,2]) # normal
+x3 <-  qlnorm(U[,3]) # lognormal
+x4 <- qunif(U[,4]) # uniform
+
+data <- cbind(x1,x2,x3,x4) # simulated, correlated data
+
+round(cov(data),1) # covariance matrix
+```
+
+The ```sobol2002``` and ```K12``` functions are employed in the same way as in the case of no correlation, using the new correlated data matrix generated above. The figure below shows results from correlation of $\rho_{12}=0.8$ between variables $x_1$ and $x_2$.
+
+```{r, echo=FALSE, fig.width=7 ,fig.height=4}
+### Kucherenko 2012 method
+k2_ex <- K12(N=N, data = data, distributions=distributions, 
+             model = toy)
+
+### Sobol' 2002 method
+a <- data[sample(nrow(data),size=n_samps,replace=TRUE), ]
+b <- data[sample(nrow(data),size=n_samps,replace=TRUE), ]
+s2_ex <- sobol2002(model = toy, X1 = a, X2 = b)
+
+### Plot Comparison
+
+par(mfrow=c(1,2))
+ex_plot(k2_ex, s2_ex)
+
+```
+
+The figure above shows the difference in SI values due to the effect of correlation alone. Individual and total SI values for correlated and interacting variables $x_1$ and $x_2$ are different across the two methods, while uncorrelated but still interacting variable $x_4$ and uncorrelated, non-interacting variable $x_3$ remain essentially the same across both methods. The Kucherenko et al. (2012) method's higher individual SI values, coupled with a lower total (interaction) effect for $x_1$ and $x_2$ SIs result from correlation. 
+
+Correlation is 'masked' in the 2002 method, where interaction effects appear to dominate according to the SI. Correlation is what the model is primarily sensitive to, by way of correlated variables being interacted; the model is sensitive to interaction effects secondary to correlation. **The point is that information about correlation is displayed as an interaction effect (high ranked total SI) in the Sobol' SA that does not account for correlation.**
+
+According to a range of arbitrary thresholds, the SA finds that the model is 'sensitive' to the input variables at the following levels (output is from the 2012 method), and results are different than in the previous uncorrelated case.
+
+```{r, echo=TRUE}
+k2_ex$results
+```
+
+If the intention is to simply rank important variables - correlation may not matter. Either analysis suggests that variables $x_1$ and $x_2$ are important. If however, the model is experimental, or based on a set of assumptions about relationships between input variables, and where the intention is to learn about a model's response to variables in order to modify or improve the model, then it is important to know if a model is primarily sensitive to interaction effects (model structure) or correlation effects (data relationships).
+
+## 3. Range of Correlation
+
+To the last point, for exploration of input correlation effects on a model, a range of correlation can be imposed on variables (using a loop):
+
+```{r, echo=TRUE}
+############ Range of Correlation Example
+
+# correlation
+corseq <- seq(-0.9, 0.9,length.out=10)
+
+# initialize
+ki_mat <- matrix(NA, nrow = k, ncol=length(corseq), 
+                 dimnames = list(1:k, corseq)) # indiv index matrix
+kt_mat <- matrix(NA, nrow = k, ncol=length(corseq), 
+                 dimnames = list(1:k, corseq)) # total index matrix
+
+for (i in 1:length(corseq)){
+  
+  # Correlation matrix (WITH CORRELATION)
+  rho <- 0.0
+  sigma <- matrix(rep(NA, k^2), nrow=k) # cor mat init
+  std <- 1
+  diag(sigma) <- std^2 ; sigma[lower.tri(sigma)] <- rho ; 
+  sigma[upper.tri(sigma)] <- rho
+  
+  sigma[2,1] <- sigma[1,2] <- corseq[i]
+  
+  A <- t(chol(sigma))
+  x <- t( apply(A %*% t(xt), MARGIN=2, FUN=function(x){x + mu_x}))
+  
+  U <- apply(x,2,pnorm) # Uniform, correlated variables
+  
+  x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+  x2 <- qnorm(U[,2]) # normal
+  x3 <-  qlnorm(U[,3]) # lognormal
+  x4 <- qunif(U[,4]) # uniform
+  
+  data <- cbind(x1,x2,x3,x4) # simulated, correlated real data
+  
+  ki <- K12(N=N, data = data, distributions=distributions, 
+            model = toy)
+  
+  ki_mat[ ,i] <- ki$SY
+  kt_mat[ ,i] <- ki$STy
+  # print(i)
+  
+}
+
+```
+
+The figure below shows the results of a range of correlation between variables $x_1$ and $x_2$ of between $-0.9$ and $0.9$.
+
+```{r, echo=FALSE, fig.width=7, fig.height=5}
+
+par(mfrow=c(1,1))
+cols <- c(1,2,3,4) # plot colors
+pchs <- c(21,24,23,22) # point types
+
+plot(corseq, ki_mat[1, ], ylab="Sensitivity Index Value", type="b", 
+     pch=21, lty=1, ylim=c(0,1), col=1, xlab=expression(rho["x1,x2"]))
+lines(corseq, kt_mat[1, ], ylab="Index Value", type="b", 
+      pch=21, lty=2, col=1)
+
+for (i in 2:k){
+  lines(corseq, ki_mat[i, ], ylab="Index Value", type="b", 
+        pch=pchs[i], lty=1, col=cols[i])
+  lines(corseq, kt_mat[i, ], ylab="Index Value", type="b", 
+        pch=pchs[i], lty=2, col=cols[i])
+}
+
+legend("top", expression("x1"["i"],"x1"["T"], "x2"["i"],
+       "x2"["T"], "x3"["i"],"x3"["T"], "x4"["i"],"x4"["T"]), 
+       pch=rep(pchs,each = 2), lty = rep(c(1,2),4), 
+       col=rep(cols,each = 2), pt.bg = "white", bg="white", 
+       horiz=T, bty="n", ncol=1, y.intersp = 1)
+
+
+```
+
+The figure above shows the change in individual and total SI values as correlation moves from strong negative correlation to strong positive correlation between variables $x_1$ and $x_2$. Patterns seen here are characteristic of the dynamics between individual and total sensitivity when correlation is present.
+
+For $x_3$, which is neither correlated nor interacted with any other variable in the model, the individual and total SI results are relatively steady and small; $x_3$ would be a candidate for fixing. All three of the other variables have interaction- or correlation and interaction- related impact on model output response. For example, $x_4$ is only interacted with $x_1$, therefore the importance of $x_4$ in determining model output variance (evident in values of the total SI) changes relative to the sign of $\rho_{12}$. As $\rho_{12}$ moves from negative to positive, the sensitivity of the model to the first order effects of $x_1$ and $x_2$ increase as its sensitivity to interaction effects of $x_4$ decrease.
+
+The relevance of this is context specific. In cases where correlation between input data and parameters is known and/or constant, one would simply draw a line at a given $\rho$ value, and fix or adjust parameters based on SI results obtained there. For example, if the modeler knew, based on experiments or data, that $\rho_{12} = -0.5$, she might choose a $20\%$ sensitivity threshold, and fix $x_2$ and $x_3$, as both their individual and total SI values fall below this level. However, if due to system change, or lack of knowledge about the model or input data, $\rho_{12} = 0.5$, the model would no longer include $x_2$, which at positive $\rho_{12}$ has significant first order impact on model output variance. 
+
+Again, both the 2002 and 2012 methods tell the modeler that this is true: the Sobol' results show important *interaction* effects for $x_2$, and Kucherenko results show important *individual* effects for $x_2$. Either way, both indicate that the model is sensitive to $x_2$. **The difference is that with the Sobol' SA, the modeler only knows that interaction effects are important, and that sensitivity may be induced simultaneously by model structure (interacting variables) and data dependence (correlation). With the Kucherenko SA, the modeler knows that individual effects dominating interaction effects is a signature of strong correlation.** 
+
+In the latter case, model structural sensitivities can be identified; sensitivity of the model to the interaction effect of $x_4$, for example, is due to model structure rather than correlation impacts direct to $x_4$ (for which there are none). Furthermore, the structural importance of $x_4$ is similar in magnitude to what can be identified as the structural importance of $x_1$. **This is information that cannot be obtained with the SA that does not account for correlation.**
+
+#### References
+
+Kucherenko, S., S. Tarantola, and P. Annoni. "Estimation of Global Sensitivity Indices for Models with Dependent Variables." Computer Physics Communications 183, no. 4 (April 2012): 937-946. doi:10.1016/j.cpc.2011.12.020.
+
+Saltelli, Andrea. "Making Best Use of Model Evaluations to Compute Sensitivity Indices." Computer Physics Communications 145, no. 2 (May 15, 2002): 280-297. doi:10.1016/S0010-4655(02)00280-1.
+
+Sobol', I.M. "Global Sensitivity Indices for Nonlinear Mathematical Models and Their Monte Carlo Estimates." Mathematics and Computers in Simulation 55, no. 1-3 (February 15, 2001): 271-280. doi:10.1016/S0378-4754(00)00270-6.

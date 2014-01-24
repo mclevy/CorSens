@@ -25,3 +25,7 @@ Collate:
     'L86.R'
     'ParamFit.R'
     'CorSens-package.R'
+VignetteBuilder: knitr
+Suggests:
+    knitr,
+    sensitivity
