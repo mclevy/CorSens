@@ -287,11 +287,11 @@ K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigm
   }
   
   for (i in 1:length(thresh)){
-    if (sum(kk$SY > threshnames_i[i]) > 0){
-      results[kk$SY > threshnames_i[i], threshnames_i[i]] <- "X"
+    if (sum(kk$SY > thresh[i]) > 0){
+      results[kk$SY > thresh[i], threshnames_i[i]] <- "X"
     }
-    if (sum(kk$STy > threshnames_T[i]) > 0){
-      results[kk$STy > threshnames_T[i], threshnames_T[i]] <- "X"
+    if (sum(kk$STy > thresh[i]) > 0){
+      results[kk$STy > thresh[i], threshnames_T[i]] <- "X"
     }
   }
   
