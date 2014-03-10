@@ -23,7 +23,7 @@ CorTransform <- function(data = NULL, distributions, k=NULL, sigma = NULL, mu=NU
 
   # mu is (optional) desired mean vector
   # k is (optional) number of variables when no data is provided
-  # sigma needs to be covariance, not correlation matrix
+  # sigma needs to be covariance, not correlation matrix: need coefficient of variation (from covariance) and correlation coefficient (correlation)
   
   # outputs correlation (not covariance) matrix
   
@@ -37,7 +37,16 @@ CorTransform <- function(data = NULL, distributions, k=NULL, sigma = NULL, mu=NU
   
   # initialize, cor and cov matrix for transformed vars
   Psi_cor <- matrix(NA, ncol=n, nrow=n)
-  diag(Psi_cor) <-diag(sigma)
+  
+  if (is.null(data) == T | (is.null(data) == F && is.null(sigma) == F)){
+    # get correlation matrix for correlation coefficient (rho_ij)
+    sigma_cor <- cov2cor(sigma)
+    diag(Psi_cor) <- diag(sigma_cor)
+    # check
+    if (all(diag(Psi_cor) != rep(1,n)) && all(sigma_cor <= 1) != TRUE) stop("Check covariance matrix; transformation to correlation is incorrect (CorTransform)")
+  } else if (is.null(data) == F && is.null(sigma) == T){
+    diag(Psi_cor) <- rep(1,n)
+  }
   
   for (i in 1:ncol(combos)){
     
@@ -55,15 +64,16 @@ CorTransform <- function(data = NULL, distributions, k=NULL, sigma = NULL, mu=NU
       
     } else if (is.null(data) == T){ # no data entered
       
+      # from covariance (not cor) matrix
       delta_j <- sqrt(sigma[xj,xj])/mu[xj] # sigma/mu for distribution j (in Group 2)
       delta_i <- sqrt(sigma[xi,xi])/mu[xi] # sigma/mu for distribution i (in Group 2)
    
     }
     
     if (is.null(sigma) == T){
-      rho_ij <- cor(varj,vari,use="pairwise.complete.obs")
+      rho_ij <- cor(varj,vari,use="pairwise.complete.obs") # cor coefficient
     }else{
-      rho_ij <- sigma[xj,xi]
+      rho_ij <- sigma_cor[xj,xi] # cor coefficient from correlation (not cov) matrix
     }
     
     Fm <- L86(delta_j, delta_i, rho_ij, distributions) #  matrix of sigma coefficients (F in Liu, psi in Kucherenko et al. 2012)
@@ -73,6 +83,5 @@ CorTransform <- function(data = NULL, distributions, k=NULL, sigma = NULL, mu=NU
     
   }
   
-  Psi_cor <- cov2cor(Psi_cor)
   return(Psi_cor) # transformed correlation matrix for use with (standard) normal transformed variables
 }

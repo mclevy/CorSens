@@ -96,11 +96,8 @@ K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigm
   
   if (is.null(sigma) == F){
     sigma <- sigma
-  } else if (is.null(sigma)){
-    sigma <- cov(data,use="pairwise.complete.obs")
+    if(all(rep(1,k) == diag(sigma))) warning("Check that sigma is a covariance (not correlation) matrix; covariance matrix must be supplied")
   }
-  
-  if(all(rep(1,k) == diag(sigma))) warning("Check that sigma is a covariance (not correlation) matrix; covariance matrix must be supplied")
 
   if (is.null(sigma) == T){
     sigma <- CorTransform(data, k=k, distributions)

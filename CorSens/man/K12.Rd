@@ -2,9 +2,9 @@
 \alias{K12}
 \title{Monte Carlo Estimation of Sensitivity Indices for Models with Dependent Variables (Gaussian Copula Scheme by Kucherenko et al. 2012)}
 \usage{
-  K12(data = NULL, distributions = NULL, parameters = NULL,
-    N = 10^4, sigma = NULL, model, k = NULL, mu = NULL,
-    threshold = c(0.01, 0.05, 0.1))
+K12(data = NULL, distributions = NULL, parameters = NULL, N = 10^4,
+  sigma = NULL, model, k = NULL, mu = NULL, threshold = c(0.01, 0.05,
+  0.1))
 }
 \arguments{
   \item{data}{\code{NULL} (default) A matrix with columns
@@ -65,40 +65,40 @@
   and 10\% of total output variance).}
 }
 \value{
-  list \code{K12} returns a list containing the first order
-  SI estimates \code{$SY}; the total SI estimates
-  \code{$STy}; and a printed matrix \code{$results} of
-  first order and total SI achieving threshold values.
+list \code{K12} returns a list containing the first order
+SI estimates \code{$SY}; the total SI estimates
+\code{$STy}; and a printed matrix \code{$results} of first
+order and total SI achieving threshold values.
 }
 \description{
-  The \code{K12} function calculates variance decomposition
-  based first order (individual) and interaction (total)
-  sensitivity indices (SI) for models with dependent input
-  variables (data or parameters) using Monte Carlo
-  estimation methods, and a Gaussian copula based approach
-  for sampling from arbitrary multivariate distributions.
+The \code{K12} function calculates variance decomposition
+based first order (individual) and interaction (total)
+sensitivity indices (SI) for models with dependent input
+variables (data or parameters) using Monte Carlo estimation
+methods, and a Gaussian copula based approach for sampling
+from arbitrary multivariate distributions.
 }
 \details{
-  The \code{K12} method is a generalization of the method
-  used to compute Sobol' SI, wherein SI respond to the
-  relative impact of interactions and input variable
-  correlations on model output, instead of assuming
-  variable dependence (as in previous Sobol' index
-  estimation methods). \code{K12} relies on specification
-  of a parametric marginal distribution form to each model
-  input variable. Marginal distributions may be any
-  combination of the following distributions: uniform,
-  normal, lognormal, or gamma. Simple random sampling is
-  used for Monte Carlo estimation of SI, and a sample size
-  of no less than \emph{N=10^4} (default) is recommended
-  based on analytical tests. Any number of input variables
-  may be used, however using the recommended sample size
-  with \emph{k>10} input variables may be slow; the
-  function estimates \emph{2k} indices (for first order and
-  total SI) at a cost of \emph{N*(2k+1)} model evaluations.
-  \emph{(Future iterations will implement sampling methods
-  that require fewer samples to achieve SI estimate
-  convergence according to analytical tests.)}
+The \code{K12} method is a generalization of the method
+used to compute Sobol' SI, wherein SI respond to the
+relative impact of interactions and input variable
+correlations on model output, instead of assuming variable
+dependence (as in previous Sobol' index estimation
+methods). \code{K12} relies on specification of a
+parametric marginal distribution form to each model input
+variable. Marginal distributions may be any combination of
+the following distributions: uniform, normal, lognormal, or
+gamma. Simple random sampling is used for Monte Carlo
+estimation of SI, and a sample size of no less than
+\emph{N=10^4} (default) is recommended based on analytical
+tests. Any number of input variables may be used, however
+using the recommended sample size with \emph{k>10} input
+variables may be slow; the function estimates \emph{2k}
+indices (for first order and total SI) at a cost of
+\emph{N*(2k+1)} model evaluations. \emph{(Future iterations
+will implement sampling methods that require fewer samples
+to achieve SI estimate convergence according to analytical
+tests.)}
 }
 \examples{
 \dontrun{
@@ -123,27 +123,27 @@ s_sim$results
 }
 }
 \references{
-  Kucherenko, S., S. Tarantola, and P. Annoni. "Estimation
-  of Global Sensitivity Indices for Models with Dependent
-  Variables." Computer Physics Communications 183, no. 4
-  (April 2012): 937-946. doi:10.1016/j.cpc.2011.12.020.
+Kucherenko, S., S. Tarantola, and P. Annoni. "Estimation of
+Global Sensitivity Indices for Models with Dependent
+Variables." Computer Physics Communications 183, no. 4
+(April 2012): 937-946. doi:10.1016/j.cpc.2011.12.020.
 
-  Saltelli, Andrea, Paola Annoni, Ivano Azzini, Francesca
-  Campolongo, Marco Ratto, and Stefano Tarantola. "Variance
-  Based Sensitivity Analysis of Model Output. Design and
-  Estimator for the Total Sensitivity Index." Computer
-  Physics Communications 181, no. 2 (February 2010):
-  259-270. doi:10.1016/j.cpc.2009.09.018.
+Saltelli, Andrea, Paola Annoni, Ivano Azzini, Francesca
+Campolongo, Marco Ratto, and Stefano Tarantola. "Variance
+Based Sensitivity Analysis of Model Output. Design and
+Estimator for the Total Sensitivity Index." Computer
+Physics Communications 181, no. 2 (February 2010): 259-270.
+doi:10.1016/j.cpc.2009.09.018.
 
-  Saltelli, Andrea. "Making Best Use of Model Evaluations
-  to Compute Sensitivity Indices." Computer Physics
-  Communications 145, no. 2 (May 15, 2002): 280-297.
-  doi:10.1016/S0010-4655(02)00280-1.
+Saltelli, Andrea. "Making Best Use of Model Evaluations to
+Compute Sensitivity Indices." Computer Physics
+Communications 145, no. 2 (May 15, 2002): 280-297.
+doi:10.1016/S0010-4655(02)00280-1.
 
-  Sobol', I.M. "Global Sensitivity Indices for Nonlinear
-  Mathematical Models and Their Monte Carlo Estimates."
-  Mathematics and Computers in Simulation 55, no. 1-3
-  (February 15, 2001): 271-280.
-  doi:10.1016/S0378-4754(00)00270-6.
+Sobol', I.M. "Global Sensitivity Indices for Nonlinear
+Mathematical Models and Their Monte Carlo Estimates."
+Mathematics and Computers in Simulation 55, no. 1-3
+(February 15, 2001): 271-280.
+doi:10.1016/S0378-4754(00)00270-6.
 }
 

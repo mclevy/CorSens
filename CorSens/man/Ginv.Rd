@@ -2,7 +2,7 @@
 \alias{Ginv}
 \title{Arbitrary Inverse CDF for \code{K12}}
 \usage{
-  Ginv(data, distributions, params)
+Ginv(data, distributions, params)
 }
 \arguments{
   \item{data}{A data matrix of correlated uniform marginal
@@ -18,23 +18,23 @@
   the \code{ParamFit} function.}
 }
 \value{
-  matrix
+matrix
 }
 \description{
-  The function transforms a matrix of uniform, correlated
-  marginal distributions to correlated arbitrary marginal
-  distributions, using a list of specified parameters or
-  those calculated with \code{ParamFit} function.
+The function transforms a matrix of uniform, correlated
+marginal distributions to correlated arbitrary marginal
+distributions, using a list of specified parameters or
+those calculated with \code{ParamFit} function.
 }
 \details{
-  The function operates within the \code{K12} function, and
-  after using the \code{Fnorm} function on MVN transformed
-  data from \code{K12}. It transforms a matrix of uniform,
-  correlated marginal distributions to arbitrary marginal
-  densities. This function is a component of the copula
-  method within the \code{K12} function; the combined use
-  of the \code{Fnorm} function, followed by the \code{Ginv}
-  function on the \code{K12} MVN transformed data is a
-  Gaussian copula.
+The function operates within the \code{K12} function, and
+after using the \code{Fnorm} function on MVN transformed
+data from \code{K12}. It transforms a matrix of uniform,
+correlated marginal distributions to arbitrary marginal
+densities. This function is a component of the copula
+method within the \code{K12} function; the combined use of
+the \code{Fnorm} function, followed by the \code{Ginv}
+function on the \code{K12} MVN transformed data is a
+Gaussian copula.
 }
 

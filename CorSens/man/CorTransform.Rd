@@ -2,8 +2,8 @@
 \alias{CorTransform}
 \title{Wrapper for L86 (MVN Correlation Mapping)}
 \usage{
-  CorTransform(data = NULL, distributions, k = NULL,
-    sigma = NULL, mu = NULL)
+CorTransform(data = NULL, distributions, k = NULL, sigma = NULL,
+  mu = NULL)
 }
 \arguments{
   \item{data}{A data matrix with columns taken as arbitrary
@@ -33,36 +33,35 @@
   \code{sigma} are provided (such as in a simulation).}
 }
 \value{
-  matrix A MVN correlation matrix
+matrix A MVN correlation matrix
 }
 \description{
-  This function is a wrapper for the \code{L86} function
-  that formats and passes required information
-  to\code{L86}, which calculates arbitrary-to-MVN
-  distribution correlation coefficient mappings. This
-  function produces a MVN correlation matrix from the
-  correlation of marginal arbitrary distributions (data
-  matrix columns) from \code{data}, or a specified
-  correlation matrix \code{sigma}.
+This function is a wrapper for the \code{L86} function that
+formats and passes required information to\code{L86}, which
+calculates arbitrary-to-MVN distribution correlation
+coefficient mappings. This function produces a MVN
+correlation matrix from the correlation of marginal
+arbitrary distributions (data matrix columns) from
+\code{data}, or a specified correlation matrix
+\code{sigma}.
 }
 \details{
-  This function calculates a MVN correlation matrix
-  (adjusted arbitrary distributions' correlation
-  coefficients), based on either data correlation from
-  \code{data}, or specified parameters
-  \code{k},\code{sigma}, and \code{mu}, and well as
-  \code{distributions}.The function is used internal to the
-  \code{K12} function or may be used independently.
+This function calculates a MVN correlation matrix (adjusted
+arbitrary distributions' correlation coefficients), based
+on either data correlation from \code{data}, or specified
+parameters \code{k},\code{sigma}, and \code{mu}, and well
+as \code{distributions}.The function is used internal to
+the \code{K12} function or may be used independently.
 }
 \references{
-  Liu, Pei-Ling, and Armen Der Kiureghian. "Multivariate
-  Distribution Models with Prescribed Marginals and
-  Covariances." Probabilistic Engineering Mechanics 1, no.
-  2 (June 1986): 105-112. doi:10.1016/0266-8920(86)90033-0.
+Liu, Pei-Ling, and Armen Der Kiureghian. "Multivariate
+Distribution Models with Prescribed Marginals and
+Covariances." Probabilistic Engineering Mechanics 1, no. 2
+(June 1986): 105-112. doi:10.1016/0266-8920(86)90033-0.
 
-  Kucherenko, S., S. Tarantola, and P. Annoni. "Estimation
-  of Global Sensitivity Indices for Models with Dependent
-  Variables." Computer Physics Communications 183, no. 4
-  (April 2012): 937-946. doi:10.1016/j.cpc.2011.12.020.
+Kucherenko, S., S. Tarantola, and P. Annoni. "Estimation of
+Global Sensitivity Indices for Models with Dependent
+Variables." Computer Physics Communications 183, no. 4
+(April 2012): 937-946. doi:10.1016/j.cpc.2011.12.020.
 }
 

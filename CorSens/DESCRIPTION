@@ -17,14 +17,6 @@ Imports:
 URL: https://github.com/mclevy/CorSens.git
 License: # getOptions('devtools.desc.license')
 LazyData: true
-Collate:
-    'CorTransform.R'
-    'Fnorm.R'
-    'Ginv.R'
-    'K12.R'
-    'L86.R'
-    'ParamFit.R'
-    'CorSens-package.R'
 VignetteBuilder: knitr
 Suggests:
     knitr,

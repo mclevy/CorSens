@@ -41,20 +41,20 @@ L86 <- function(delta_j, delta_i, rho_ij, distributions){
   Fmat["unif","unif"] <- 1.047 - 0.047*(rho_ij^2)
   
   # Xj from Group 2, Xi from Group 1
-  Fmat["lnorm","unif"] <- 1.019 + 0.0148*delta_j + 0.010*(rho_ij^2) + 0.249*(delta_j^2)
+  Fmat["lnorm","unif"] <- 1.019 + 0.014*delta_j + 0.010*(rho_ij^2) + 0.249*(delta_j^2)
   Fmat["gamma", "unif"] <- 1.023 - 0.007*delta_j + 0.002*rho_ij + 0.127*(delta_j^2)
   #
-  Fmat["unif","lnorm"] <- 1.019 + 0.0148*delta_i + 0.010*(rho_ij^2) + 0.249*(delta_i^2)
+  Fmat["unif","lnorm"] <- 1.019 + 0.014*delta_i + 0.010*(rho_ij^2) + 0.249*(delta_i^2)
   Fmat["unif", "gamma"] <- 1.023 - 0.007*delta_i + 0.002*rho_ij + 0.127*(delta_i^2)
   
   # Xj and Xi from Group 2
-  if (sum(distributions == "lnorm") >= 2){
+  if (sum(distributions == "lnorm") >= 2){ # bec get errors if no lnorms in there
     Fmat["lnorm", "lnorm"] <- log(1+(rho_ij*delta_i*delta_j)) / (rho_ij*sqrt(log(1+(delta_i^2))*log(1+(delta_j^2))))
   }
   Fmat["gamma","gamma"] <- 1.002 + 0.022*rho_ij - 0.012*(delta_i + delta_j) + 0.001*(rho_ij^2) + 0.125*((delta_i^2) + (delta_j^2)) - 0.077*rho_ij*(delta_i + delta_j) + 0.014*delta_i*delta_j
-  Fmat["gamma", "lnorm"] <- 1.001 + 0.033*rho_ij + 0.004*delta_i - 0.016*delta_j + 0.002*(rho_ij^2) + 0.223*(delta_i^2) + 0.130*(delta_j^2) - 0.104*rho_ij*delta_i + 0.029*delta_i*delta_j - 0.119*rho_ij*delta_i
+  Fmat["gamma", "lnorm"] <- 1.001 + 0.033*rho_ij + 0.004*delta_i - 0.016*delta_j + 0.002*(rho_ij^2) + 0.223*(delta_i^2) + 0.130*(delta_j^2) - 0.104*rho_ij*delta_i + 0.029*delta_i*delta_j - 0.119*rho_ij*delta_j
   #
-  Fmat["lnorm", "gamma"] <- 1.001 + 0.033*rho_ij + 0.004*delta_j - 0.016*delta_i + 0.002*(rho_ij^2) + 0.223*(delta_j^2) + 0.130*(delta_i^2) - 0.104*rho_ij*delta_j + 0.029*delta_j*delta_i - 0.119*rho_ij*delta_j
+  Fmat["lnorm", "gamma"] <- 1.001 + 0.033*rho_ij + 0.004*delta_j - 0.016*delta_i + 0.002*(rho_ij^2) + 0.223*(delta_j^2) + 0.130*(delta_i^2) - 0.104*rho_ij*delta_j + 0.029*delta_j*delta_i - 0.119*rho_ij*delta_i
   
   return(Fmat)
 }
