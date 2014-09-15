@@ -1,5 +1,7 @@
-
 ## ----, echo=TRUE---------------------------------------------------------
+
+set.seed(1208)
+
 # dimensions of data
 N <- 10^5
 k <- 4
@@ -23,14 +25,13 @@ x <- t( apply(A %*% t(xt), MARGIN=2, FUN=function(x){x + mu_x}))
 U <- apply(x,2,pnorm)
 
 # simulate data according to selected arbitrary distributions
-x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+x1 <-  qgamma(U[,1], shape=5, rate=1/2) # gamma = exponential
 x2 <- qnorm(U[,2]) # normal
-x3 <-  qlnorm(U[,3]) # lognormal
+x3 <- rlnorm(N, 0, mean(qlnorm(U[,3]))*0.2) # lognormal (meets allowable coefficient of correlation range sigma/mu = [0.1,0.5] accroding to Liu et. al., 1986)
 x4 <- qunif(U[,4]) # uniform
 
 # matrix of simulated, correlated data (4 variables)
 data <- cbind(x1,x2,x3,x4)
-
 
 ## ----, echo=FALSE, fig.width=7, fig.height=5-----------------------------
 par(mfrow=c(2,2))
@@ -40,10 +41,8 @@ for (i in 1:ncol(data)){
   lines(density(data[ ,i]), col=2, lwd = 2)
 }
 
-
 ## ----, echo=FALSE--------------------------------------------------------
 round(cov(data),1)
-
 
 ## ----, echo=TRUE---------------------------------------------------------
 # Assign distribution manually
@@ -54,7 +53,6 @@ toy <- function(data){
   Y <- (data[ ,1]*data[ ,2]) + (data[ ,1]*data[ ,4])^2 + data[ ,1] + data[ ,2] + data[ ,3] + data[ ,4]
   return(Y)
 }
-
 
 ## ----, echo=TRUE---------------------------------------------------------
 ### Sobol' 2002 method
@@ -71,7 +69,6 @@ s1_ex$S
 # Total indices
 s1_ex$T
 
-
 ## ----, echo=TRUE---------------------------------------------------------
 ### Kucherenko 2012 method
 library(CorSens)
@@ -83,7 +80,6 @@ k1_ex$SY
 k1_ex$STy
 # sensitivity according to (arbitrary) thresholds of significance (defaults)
 k1_ex$results
-
 
 ## ----, echo=FALSE--------------------------------------------------------
 ### Plot distributions function
@@ -100,11 +96,9 @@ ex_plot <- function(k,s){
   legend("topright", c("Kucherenko", "Sobol'"), pch=c(21,22), col=1:2, cex=1.2)
 }
 
-
 ## ----, echo=FALSE, fig.width=7, fig.height=4-----------------------------
 par(mfrow=c(1,2))
 ex_plot(k1_ex, s1_ex)
-
 
 ## ----, echo=TRUE---------------------------------------------------------
 # Correlation matrix (WITH correlation)
@@ -121,20 +115,18 @@ A <- t(chol(sigma))
 x <- t( apply(A %*% t(xt), MARGIN=2, FUN=function(x){x + mu_x}))
 U <- apply(x,2,pnorm) # Uniform, correlated variables
 
-x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+x1 <-  qgamma(U[,1], shape=5, rate=1/2) # gamma
 x2 <- qnorm(U[,2]) # normal
-x3 <-  qlnorm(U[,3]) # lognormal
+x3 <-  rlnorm(N, 0, mean(qlnorm(U[,3]))*0.2) # lognormal (meets allowable coefficient of correlation range sigma/mu = [0.1,0.5] accroding to Liu et. al., 1986)
 x4 <- qunif(U[,4]) # uniform
 
 data <- cbind(x1,x2,x3,x4) # simulated, correlated data
 
 round(cov(data),1) # covariance matrix
 
-
 ## ----, echo=FALSE, fig.width=7 ,fig.height=4-----------------------------
 ### Kucherenko 2012 method
-k2_ex <- K12(N=N, data = data, distributions=distributions, 
-             model = toy)
+k2_ex <- K12(N=N, data = data, distributions=distributions, model = toy)
 
 ### Sobol' 2002 method
 a <- data[sample(nrow(data),size=n_samps,replace=TRUE), ]
@@ -147,10 +139,8 @@ par(mfrow=c(1,2))
 ex_plot(k2_ex, s2_ex)
 
 
-
 ## ----, echo=TRUE---------------------------------------------------------
 k2_ex$results
-
 
 ## ----, echo=TRUE---------------------------------------------------------
 ############ Range of Correlation Example
@@ -180,9 +170,9 @@ for (i in 1:length(corseq)){
   
   U <- apply(x,2,pnorm) # Uniform, correlated variables
   
-  x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+  x1 <-  qgamma(U[,1], shape=5, rate=1/2) # gamma
   x2 <- qnorm(U[,2]) # normal
-  x3 <-  qlnorm(U[,3]) # lognormal
+  x3 <-  rlnorm(N, 0, mean(qlnorm(U[,3]))*0.2) # lognormal (meets allowable coefficient of correlation range sigma/mu = [0.1,0.5] accroding to Liu et. al., 1986)
   x4 <- qunif(U[,4]) # uniform
   
   data <- cbind(x1,x2,x3,x4) # simulated, correlated real data
@@ -195,7 +185,6 @@ for (i in 1:length(corseq)){
   # print(i)
   
 }
-
 
 
 ## ----, echo=FALSE, fig.width=7, fig.height=5-----------------------------
@@ -221,7 +210,6 @@ legend("top", expression("x1"["i"],"x1"["T"], "x2"["i"],
        pch=rep(pchs,each = 2), lty = rep(c(1,2),4), 
        col=rep(cols,each = 2), pt.bg = "white", bg="white", 
        horiz=T, bty="n", ncol=1, y.intersp = 1)
-
 
 
 

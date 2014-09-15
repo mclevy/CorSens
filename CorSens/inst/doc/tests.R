@@ -1,11 +1,9 @@
-
 ## ----, echo = FALSE------------------------------------------------------
 
 rm(list= ls());
 library(CorSens)
 
 N <- 10^5
-
 
 ## ----, echo = FALSE------------------------------------------------------
 
@@ -80,7 +78,6 @@ t1[numVars] <- lapply(t1[numVars], round, digits = 2)
 print(t1)
 
 
-
 ## ----, echo=FALSE--------------------------------------------------------
 
 k <- 4 # dimensions (variables/parameters) # test case 2
@@ -129,7 +126,6 @@ t2[ ,5] <- c(s1T,s2T,s3T,s4T)
 numVars <- sapply(t2, is.numeric) 
 t2[numVars] <- lapply(t2[numVars], round, digits = 2) 
 print(t2)
-
 
 
 ## ----, echo=FALSE, fig.width=7, fig.height=5-----------------------------
@@ -198,6 +194,5 @@ legend("top", expression("x1"["i"],"x1"["T"], "x2"["i"],"x2"["T"],
        "x3"["i"],"x3"["T"]), pch=c(21,21,24,24,23,23), 
        lty = c(1,2,1,2,1,2), col=c(1,1,2,2,4,4), pt.bg = "white", 
        bg="white", horiz=T, bty="n", ncol=1, y.intersp = 1)
-
 
 

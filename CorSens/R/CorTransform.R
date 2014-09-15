@@ -50,6 +50,8 @@ CorTransform <- function(data = NULL, distributions, k=NULL, sigma = NULL, mu=NU
   
   for (i in 1:ncol(combos)){
     
+    # cat(i)
+    
     xj <- combos[1,i] # 1st pair variable
     xi <- combos[2,i] # 2nd pair variable
     
@@ -69,6 +71,10 @@ CorTransform <- function(data = NULL, distributions, k=NULL, sigma = NULL, mu=NU
       delta_i <- sqrt(sigma[xi,xi])/mu[xi] # sigma/mu for distribution i (in Group 2)
    
     }
+    
+    if ( ((distributions[xj] == "gamma") & (delta_j > 0.5 | delta_j < 0.1)) | ((distributions[xi] == "gamma") & (delta_i > 0.5 | delta_i < 0.1)) ) stop("Coefficient of variation for the gamma distribution exceeds limits [0.1,0.5] for Liu et al., 1986 model.")
+    
+    if ( ((distributions[xj] == "lnorm" ) & (delta_j > 0.5 | delta_j < 0.1)) |  ((distributions[xi] == "lnorm" ) & (delta_i > 0.5 | delta_i < 0.1)) ) stop("Coefficient of variation for the lognormal distribution exceeds limits [0.1,0.5] for Liu et al., 1986 model.")
     
     if (is.null(sigma) == T){
       rho_ij <- cor(varj,vari,use="pairwise.complete.obs") # cor coefficient

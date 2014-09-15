@@ -13,6 +13,7 @@
 #' @param parameters \code{NULL} (default) A list containing \code{k} vectors of length two for marginal distribution fit parameters (e.g. \code{mean,sd} for the normal distribution). Parameters are calculated by defualt wtihin \code{K12} using \code{ParamFit} (maximum likelihood fit using \code{fitdistr} from the \code{MASS} package) when \code{data} is supplied. In the case of a simulation, a \code{parameters} list must be supplied.
 #' @param N Sample size, by default \emph{=10^4}.
 #' @param threshold A vector of any length of desired (arbitrary) sensitivity index thresholds (for return of a \code{$results} matrix indicating variables whose first order and total SI meet the threshold value. By default, the threshold is set to 0.01,0.05, and 0.10 (1\%, 5\%, and 10\% of total output variance). 
+#' @param ... Additional arguments, such as those to be passed to the \code{model} function.
 #' 
 #' @references Kucherenko, S., S. Tarantola, and P. Annoni. "Estimation of Global Sensitivity Indices for Models with Dependent Variables." Computer Physics Communications 183, no. 4 (April 2012): 937-946. doi:10.1016/j.cpc.2011.12.020.
 #' @references Saltelli, Andrea, Paola Annoni, Ivano Azzini, Francesca Campolongo, Marco Ratto, and Stefano Tarantola. "Variance Based Sensitivity Analysis of Model Output. Design and Estimator for the Total Sensitivity Index." Computer Physics Communications 181, no. 2 (February 2010): 259-270. doi:10.1016/j.cpc.2009.09.018.
@@ -47,7 +48,7 @@
 #' }
 #' 
 #' 
-K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigma = NULL, model, k=NULL, mu = NULL, threshold = c(0.01,0.05,0.1)){
+K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigma = NULL, model, k=NULL, mu = NULL, threshold = c(0.01,0.05,0.1), ...){
   
   if(is.null(data) && is.null(sigma)) stop("If no data is provided, must specify sigma matrix")
   if(is.null(data) == T && is.null(parameters)) stop("If no data is provided, must specify parameters for chosen (default uniform) distributions")
@@ -247,9 +248,9 @@ K12 <- function(data=NULL, distributions=NULL, parameters = NULL, N = 10^4, sigm
   
   mod <- model
   
-  f.yz <- matrix(mod(Y.Z)) # ouput matrix (N x 1)
-  f.y.z_bp <- matrix(mod(Y.Z_bp), ncol=k) # output matrix (N x k) for each k subset
-  f.y_bp.z <- matrix(mod(Y_bp.Z), ncol=k) # output matrix (N x k) for each k subset
+  f.yz <- matrix(mod(Y.Z, ...)) # ouput matrix (N x 1)
+  f.y.z_bp <- matrix(mod(Y.Z_bp, ...), ncol=k) # output matrix (N x k) for each k subset
+  f.y_bp.z <- matrix(mod(Y_bp.Z, ...), ncol=k) # output matrix (N x k) for each k subset
   
   f0 <- sum(f.yz, na.rm = TRUE)/N
   D <- sum(f.yz^2, na.rm = TRUE)/N - f0^2

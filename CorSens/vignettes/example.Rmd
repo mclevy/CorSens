@@ -19,9 +19,9 @@ The simulated data are $x = (x_1, x_2, x_3, x_4)$ with
 
 $$
  \begin{align*}
- x_1 &\sim \Gamma(\alpha=1, \beta=0.5) \sim Exp(\lambda=0.5) \\
+ x_1 &\sim \Gamma(\alpha=5, \beta=0.5) \\
  x_2 &\sim N(\mu_2=0, \sigma_2=1)\\
- x_3 &\sim lnN(\mu_3=0, \sigma_3=1)\\
+ x_3 &\sim lnN(\mu_3=0, \sigma_3=0.3)\\
  x_4 &\sim U(a=0, b=1),
  \end{align*}
 $$
@@ -49,6 +49,9 @@ This comparison was made in three steps:
 Generation of simulated model input data is done in this example by generating four column vectors of arbitrarily distributed data, with specified correlation, which in this initial case is none.
 
 ```{r, echo=TRUE}
+
+set.seed(1208)
+
 # dimensions of data
 N <- 10^5
 k <- 4
@@ -72,9 +75,9 @@ x <- t( apply(A %*% t(xt), MARGIN=2, FUN=function(x){x + mu_x}))
 U <- apply(x,2,pnorm)
 
 # simulate data according to selected arbitrary distributions
-x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+x1 <-  qgamma(U[,1], shape=5, rate=1/2) # gamma = exponential
 x2 <- qnorm(U[,2]) # normal
-x3 <-  qlnorm(U[,3]) # lognormal
+x3 <- rlnorm(N, 0, mean(qlnorm(U[,3]))*0.2) # lognormal (meets allowable coefficient of correlation range sigma/mu = [0.1,0.5] accroding to Liu et. al., 1986)
 x4 <- qunif(U[,4]) # uniform
 
 # matrix of simulated, correlated data (4 variables)
@@ -204,9 +207,9 @@ A <- t(chol(sigma))
 x <- t( apply(A %*% t(xt), MARGIN=2, FUN=function(x){x + mu_x}))
 U <- apply(x,2,pnorm) # Uniform, correlated variables
 
-x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+x1 <-  qgamma(U[,1], shape=5, rate=1/2) # gamma
 x2 <- qnorm(U[,2]) # normal
-x3 <-  qlnorm(U[,3]) # lognormal
+x3 <-  rlnorm(N, 0, mean(qlnorm(U[,3]))*0.2) # lognormal (meets allowable coefficient of correlation range sigma/mu = [0.1,0.5] accroding to Liu et. al., 1986)
 x4 <- qunif(U[,4]) # uniform
 
 data <- cbind(x1,x2,x3,x4) # simulated, correlated data
@@ -218,8 +221,7 @@ The ```sobol2002``` and ```K12``` functions are employed in the same way as in t
 
 ```{r, echo=FALSE, fig.width=7 ,fig.height=4}
 ### Kucherenko 2012 method
-k2_ex <- K12(N=N, data = data, distributions=distributions, 
-             model = toy)
+k2_ex <- K12(N=N, data = data, distributions=distributions, model = toy)
 
 ### Sobol' 2002 method
 a <- data[sample(nrow(data),size=n_samps,replace=TRUE), ]
@@ -277,9 +279,9 @@ for (i in 1:length(corseq)){
   
   U <- apply(x,2,pnorm) # Uniform, correlated variables
   
-  x1 <-  qgamma(U[,1], shape=1, rate=1/2) # gamma = exponential
+  x1 <-  qgamma(U[,1], shape=5, rate=1/2) # gamma
   x2 <- qnorm(U[,2]) # normal
-  x3 <-  qlnorm(U[,3]) # lognormal
+  x3 <-  rlnorm(N, 0, mean(qlnorm(U[,3]))*0.2) # lognormal (meets allowable coefficient of correlation range sigma/mu = [0.1,0.5] accroding to Liu et. al., 1986)
   x4 <- qunif(U[,4]) # uniform
   
   data <- cbind(x1,x2,x3,x4) # simulated, correlated real data
