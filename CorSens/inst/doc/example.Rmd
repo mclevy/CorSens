@@ -21,7 +21,7 @@ $$
  \begin{align*}
  x_1 &\sim \Gamma(\alpha=5, \beta=0.5) \\
  x_2 &\sim N(\mu_2=0, \sigma_2=1)\\
- x_3 &\sim lnN(\mu_3=0, \sigma_3=0.3)\\
+ x_3 &\sim lnN(\mu_3=0, \sigma_3=0.2)\\
  x_4 &\sim U(a=0, b=1),
  \end{align*}
 $$

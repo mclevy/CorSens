@@ -77,10 +77,16 @@ CorTransform <- function(data = NULL, distributions, k=NULL, sigma = NULL, mu=NU
     if ( ((distributions[xj] == "lnorm" ) & (delta_j > 0.5 | delta_j < 0.1)) |  ((distributions[xi] == "lnorm" ) & (delta_i > 0.5 | delta_i < 0.1)) ) stop("Coefficient of variation for the lognormal distribution exceeds limits [0.1,0.5] for Liu et al., 1986 model.")
     
     if (is.null(sigma) == T){
-      rho_ij <- cor(varj,vari,use="pairwise.complete.obs") # cor coefficient
+      rho_ij <- cor(varj,vari,use="pairwise.complete.obs",method = "pearson") # cor coefficient
     }else{
       rho_ij <- sigma_cor[xj,xi] # cor coefficient from correlation (not cov) matrix
     }
+    
+    if (distributions[xj] == "norm" & distributions[xi] == "norm" & abs(rho_ij) > 1) stop("Correlation coefficient for normal-normal relationship exceeds limits [-1, 1] for Liu et al., 1986 model.")
+    
+    if (distributions[xj] == "norm" & distributions[xi] == "unif" & abs(rho_ij) > 0.977) stop("Correlation coefficient for normal-uniform relationship exceeds limits [-0.977, 0.977] for Liu et al., 1986 model.")
+    
+    if (distributions[xj] == "unif" & distributions[xi] == "unif" & abs(rho_ij) > 0.999) stop("Correlation coefficient for uniform-uniform relationship exceeds limits [-0.999, 0.999] for Liu et al., 1986 model.")
     
     Fm <- L86(delta_j, delta_i, rho_ij, distributions) #  matrix of sigma coefficients (F in Liu, psi in Kucherenko et al. 2012)
     
