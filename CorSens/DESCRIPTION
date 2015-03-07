@@ -15,7 +15,7 @@ Imports:
     stats,
     matrixcalc
 URL: https://github.com/mclevy/CorSens.git
-License: # getOptions('devtools.desc.license')
+License: "GPL-2"
 LazyData: true
 VignetteBuilder: knitr
 Suggests:
